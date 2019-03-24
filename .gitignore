@@ -3,6 +3,8 @@
 /packages
 packages
 
+/WebRestApiV1/bin
+WebRestApiV1/bin
 
 # compiled output
 /dist
