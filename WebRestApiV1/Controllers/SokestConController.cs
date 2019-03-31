@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,11 @@ namespace WebRestApiV1.Controllers
 {
     public class SokestConController : ApiController
     {
+
+        
+
+
+
         [HttpGet]
         public HttpResponseMessage Conect()
         {
@@ -33,7 +39,8 @@ namespace WebRestApiV1.Controllers
 
         private async Task ControleMSG(AspNetWebSocketContext context)
         {
-            var socket = context.WebSocket;
+             var socket = context.WebSocket;
+            
 
             //Gets the current WebSocket object.
             WebSocket webSocket = context.WebSocket;
@@ -44,6 +51,7 @@ namespace WebRestApiV1.Controllers
 
             //Buffer for received bits.
             var receivedDataBuffer = new ArraySegment<Byte>(new Byte[maxMessageSize]);
+            var receivedDataBufferNull = new ArraySegment<Byte>(new Byte[maxMessageSize]);
 
             var cancellationToken = new CancellationToken();
 
@@ -57,13 +65,24 @@ namespace WebRestApiV1.Controllers
                   await webSocket.ReceiveAsync(receivedDataBuffer, cancellationToken);
 
 
-                System.Diagnostics.Debug.WriteLine("vivo");
+               /* System.Diagnostics.Debug.WriteLine("vivo");
 
                 byte[] payloadData2 = receivedDataBuffer.Array.Where(b => b != 0).ToArray();
                 string receiveStringString =
                      System.Text.Encoding.UTF8.GetString(payloadData2, 0, payloadData2.Length);
 
-                SocketReceveMSG(webSocketReceiveResult.ToString(), receiveStringString);
+
+                /*dynamic RecevideMSG = JsonConvert.DeserializeObject(receiveStringString);
+
+                if (RecevideMSG["CREATE"] != null )
+                {
+                    System.Diagnostics.Debug.WriteLine("CHEGOUUUUUUUUUUUUUUUUUUUU   ");
+                }
+                */
+               
+
+
+               //SocketReceveMSG(RecevideMSG);
 
 
 
@@ -77,62 +96,69 @@ namespace WebRestApiV1.Controllers
                 {
                     byte[] payloadData = receivedDataBuffer.Array.Where(b => b != 0).ToArray();
 
+                    byte[] bufferString = Encoding.UTF8.GetBytes(receivedDataBuffer.ToString());
+
+                    string s = System.Text.Encoding.UTF8.GetString(bufferString, 0, bufferString.Length);
+
+
                     //Because we know that is a string, we convert it.
                     string receiveString =
                       System.Text.Encoding.UTF8.GetString(payloadData, 0, payloadData.Length);
 
-                    //Converts string to byte array.
-                    var newString = String.Format("Hello, " + receiveString + " ! Time {0}", DateTime.Now.ToString());
-                    Byte[] bytes = System.Text.Encoding.UTF8.GetBytes(newString);
+                    Byte[] bytes;
+                    bytes = System.Text.Encoding.UTF8.GetBytes("");
+
+                    dynamic RecevideMSG = JsonConvert.DeserializeObject(receiveString);
+
+                    //dynamic newStringMSG = @" { MSG  : '" + RecevideMSG.MSG.ToString() + "' , Time : '" + DateTime.Now.ToString() + "' , USER : '"+ RecevideMSG.Nome.ToString() + "' } ";
+
+                    JObject o = new JObject();
+                    o["MSG"] = RecevideMSG.MSG.ToString();
+                    o["USER"] = RecevideMSG.Nome.ToString();
+                    o["Time"] = DateTime.Now.ToString();
+
+                    bytes = System.Text.Encoding.UTF8.GetBytes(o.ToString());
+
+                    if (RecevideMSG.MSG == "CREATE")
+                    {
+                        System.Diagnostics.Debug.WriteLine("CHEGOUUUUUUUUUUUUUUUUUUUU   ");
+
+
+                        //Converts string to byte array.
+                        var newString = @" { MSG : 'Hello, " + RecevideMSG.Nome.ToString() + " !', Time :  '"+ DateTime.Now.ToString() + "', USER : 'MASTER'  } ";
+
+                        JObject R = new JObject();
+                        R["MSG"] = @"Hello, " + RecevideMSG.Nome.ToString();
+                        R["USER"] = RecevideMSG.Nome.ToString();
+                        R["Time"] = DateTime.Now.ToString();
+
+
+
+                        bytes = System.Text.Encoding.UTF8.GetBytes(R.ToString());
+
+                    }
+
+
+                  
+
 
                     //Sends data back.
                     await webSocket.SendAsync(new ArraySegment<byte>(bytes),
                       WebSocketMessageType.Text, true, cancellationToken);
+
+                    receivedDataBuffer = receivedDataBufferNull;
                 }
             }
 
-
-
-
-
-
-
-
-
-
-            /*while (true)
-            {
-                await Task.Delay(2000);
-                
-                if (socket.State == WebSocketState.Open)
-                {
-                    //var noticia = noticiais[random.Next(0, noticiais.Count - 1)];
-                    JObject o = new JObject();
-                    o["message"] = "aaaaaaaaaaaaa";
-                    string json = o.ToString();
-                    
-                    var buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
-
-                    System.Diagnostics.Debug.WriteLine("vivo");
-                   
-                    await socket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
-                }
-                else
-                {
-                    break;
-                }
-            }*/
-
-
-
-
-
+             
         }
 
 
-        public void SocketReceveMSG(string  n , string realbyt)
+
+        public void SocketReceveMSG(  dynamic realbyt)
         {
-            System.Diagnostics.Debug.WriteLine("CHEGOUUUUUUUUUUUUUUUUUUUU {0}  ", realbyt);
+           
+            System.Diagnostics.Debug.WriteLine("CHEGOUUUUUUUUUUUUUUUUUUUU   ");
         }
 
 
