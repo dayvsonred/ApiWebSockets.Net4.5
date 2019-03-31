@@ -35,17 +35,46 @@ namespace WebRestApiV1.Controllers
             return new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
         }
 
+        private static readonly Dictionary<string, WebSocket> Clients = new Dictionary<string, WebSocket>();
+
+        internal static async Task SendTokenToClient(string socketId, string token)
+        {
+
+            try
+            {
+
+                //get the socket
+                var socket = Clients[socketId];
+
+                //send the token over the socket
+                await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(token)), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+            catch(Exception e )
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+
+            }
+        }
+
 
 
         private async Task ControleMSG(AspNetWebSocketContext context)
         {
-             var socket = context.WebSocket;
-            
+
+            //generate a new ID for this socket connection
+            var socketId = Guid.NewGuid().ToString();
+
+            //var socket = context.WebSocket;
+
 
             //Gets the current WebSocket object.
             WebSocket webSocket = context.WebSocket;
 
+            await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(socketId)), WebSocketMessageType.Text, true, CancellationToken.None);
 
+            //add the socket to the dictionary
+            Clients.Add(socketId, webSocket);
+ 
 
             const int maxMessageSize = 1024;
 
@@ -65,24 +94,6 @@ namespace WebRestApiV1.Controllers
                   await webSocket.ReceiveAsync(receivedDataBuffer, cancellationToken);
 
 
-               /* System.Diagnostics.Debug.WriteLine("vivo");
-
-                byte[] payloadData2 = receivedDataBuffer.Array.Where(b => b != 0).ToArray();
-                string receiveStringString =
-                     System.Text.Encoding.UTF8.GetString(payloadData2, 0, payloadData2.Length);
-
-
-                /*dynamic RecevideMSG = JsonConvert.DeserializeObject(receiveStringString);
-
-                if (RecevideMSG["CREATE"] != null )
-                {
-                    System.Diagnostics.Debug.WriteLine("CHEGOUUUUUUUUUUUUUUUUUUUU   ");
-                }
-                */
-               
-
-
-               //SocketReceveMSG(RecevideMSG);
 
 
 
@@ -96,11 +107,7 @@ namespace WebRestApiV1.Controllers
                 {
                     byte[] payloadData = receivedDataBuffer.Array.Where(b => b != 0).ToArray();
 
-                    byte[] bufferString = Encoding.UTF8.GetBytes(receivedDataBuffer.ToString());
-
-                    string s = System.Text.Encoding.UTF8.GetString(bufferString, 0, bufferString.Length);
-
-
+    
                     //Because we know that is a string, we convert it.
                     string receiveString =
                       System.Text.Encoding.UTF8.GetString(payloadData, 0, payloadData.Length);
@@ -127,24 +134,26 @@ namespace WebRestApiV1.Controllers
                         //Converts string to byte array.
                         var newString = @" { MSG : 'Hello, " + RecevideMSG.Nome.ToString() + " !', Time :  '"+ DateTime.Now.ToString() + "', USER : 'MASTER'  } ";
 
-                        JObject R = new JObject();
-                        R["MSG"] = @"Hello, " + RecevideMSG.Nome.ToString();
-                        R["USER"] = RecevideMSG.Nome.ToString();
-                        R["Time"] = DateTime.Now.ToString();
+                        //JObject R = new JObject();
+                        o["MSG"] = @"Hello, " + RecevideMSG.Nome.ToString();
+                        o["USER"] = RecevideMSG.Nome.ToString();
+                        o["Time"] = DateTime.Now.ToString();
 
 
 
-                        bytes = System.Text.Encoding.UTF8.GetBytes(R.ToString());
+                        bytes = System.Text.Encoding.UTF8.GetBytes(o.ToString());
 
                     }
-
-
-                  
-
-
+                     
                     //Sends data back.
                     await webSocket.SendAsync(new ArraySegment<byte>(bytes),
                       WebSocketMessageType.Text, true, cancellationToken);
+
+                    foreach (var client in Clients)
+                    {
+                        await SendTokenToClient(client.Key , o.ToString());
+                    }
+                   
 
                     receivedDataBuffer = receivedDataBufferNull;
                 }
