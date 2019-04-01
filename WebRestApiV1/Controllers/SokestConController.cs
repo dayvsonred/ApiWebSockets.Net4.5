@@ -37,6 +37,9 @@ namespace WebRestApiV1.Controllers
 
         private static readonly Dictionary<string, WebSocket> Clients = new Dictionary<string, WebSocket>();
 
+        private static List<string> ClientesDados = new List<string>();
+        int IMGUsers = 0;
+
         internal static async Task SendTokenToClient(string socketId, string token)
         {
 
@@ -55,6 +58,7 @@ namespace WebRestApiV1.Controllers
 
             }
         }
+
 
 
 
@@ -120,40 +124,78 @@ namespace WebRestApiV1.Controllers
                     //dynamic newStringMSG = @" { MSG  : '" + RecevideMSG.MSG.ToString() + "' , Time : '" + DateTime.Now.ToString() + "' , USER : '"+ RecevideMSG.Nome.ToString() + "' } ";
 
                     JObject o = new JObject();
-                    o["MSG"] = RecevideMSG.MSG.ToString();
-                    o["USER"] = RecevideMSG.Nome.ToString();
-                    o["Time"] = DateTime.Now.ToString();
-
-                    bytes = System.Text.Encoding.UTF8.GetBytes(o.ToString());
+                   
 
                     if (RecevideMSG.MSG == "CREATE")
                     {
                         System.Diagnostics.Debug.WriteLine("CHEGOUUUUUUUUUUUUUUUUUUUU   ");
-
-
+                         
                         //Converts string to byte array.
-                        var newString = @" { MSG : 'Hello, " + RecevideMSG.Nome.ToString() + " !', Time :  '"+ DateTime.Now.ToString() + "', USER : 'MASTER'  } ";
+                        //var newString = @" { MSG : 'Hello, " + RecevideMSG.Nome.ToString() + " !', Time :  '"+ DateTime.Now.ToString() + "', USER : 'MASTER'  } ";
 
                         //JObject R = new JObject();
                         o["MSG"] = @"Hello, " + RecevideMSG.Nome.ToString();
-                        o["USER"] = RecevideMSG.Nome.ToString();
+                        o["USER"] = "SERVER";
+                        o["NOME"] = RecevideMSG.Nome.ToString();
+                        o["IMG"] = ClientesDados.Count;
                         o["Time"] = DateTime.Now.ToString();
+
+
+                        JObject R = new JObject();
+                        R["USER"] = "SERVER";
+                        R["CONFIG"] = @"CREATE";
+                        R["NOME"] = RecevideMSG.Nome.ToString();
+                        R["IMG"] = ClientesDados.Count;
+                        R["Time"] = DateTime.Now.ToString();
+
+                        ClientesDados.Add(R.ToString());
+
+                        try {
+
+                            foreach (var client in Clients)
+                            {
+
+                                foreach (var user in ClientesDados)
+                                {
+                                     /*o["MSG"] = @""  ;
+                                    o["USER"] = "CONFIG";
+                                    o["DADOS"] = user.ToString();
+                                    o["Time"] = DateTime.Now.ToString();*/
+
+                                    await SendTokenToClient(client.Key, user.ToString());
+                                }
+
+                            }
+
+                        } catch (Exception e) {
+                        }
 
 
 
                         bytes = System.Text.Encoding.UTF8.GetBytes(o.ToString());
 
                     }
-                     
-                    //Sends data back.
-                    await webSocket.SendAsync(new ArraySegment<byte>(bytes),
-                      WebSocketMessageType.Text, true, cancellationToken);
 
-                    foreach (var client in Clients)
+
+
+                    if (RecevideMSG.MSG != "CREATE")
                     {
-                        await SendTokenToClient(client.Key , o.ToString());
+                        o["MSG"] = RecevideMSG.MSG.ToString();
+                        o["USER"] = RecevideMSG.Nome.ToString();
+                        o["IMG"] = RecevideMSG.IMG.ToString();
+                        o["Time"] = DateTime.Now.ToString();
+
+                        bytes = System.Text.Encoding.UTF8.GetBytes(o.ToString());
+
+                        //Sends data back.(apena para o usuario)
+                        /*await webSocket.SendAsync(new ArraySegment<byte>(bytes),
+                          WebSocketMessageType.Text, true, cancellationToken);*/
+
+                        foreach (var client in Clients)
+                        {
+                            await SendTokenToClient(client.Key, o.ToString());
+                        }
                     }
-                   
 
                     receivedDataBuffer = receivedDataBufferNull;
                 }

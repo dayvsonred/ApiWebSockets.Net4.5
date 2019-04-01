@@ -83,3 +83,11 @@ C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\obj\Release\WebRestApiV1
 C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\obj\Release\WebRestApiV1.csproj.CopyComplete
 C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\obj\Release\WebRestApiV1.dll
 C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\obj\Release\WebRestApiV1.pdb
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\log4net.dll
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\Microsoft.WebSockets.dll
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\SuperSocket.Common.dll
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\SuperSocket.Facility.dll
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\SuperSocket.SocketBase.dll
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\SuperSocket.SocketEngine.dll
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\SuperWebSocket.dll
+C:\Users\Dayvson\source\repos\WebRestApiV1\WebRestApiV1\bin\log4net.xml
