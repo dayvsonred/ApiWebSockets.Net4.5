@@ -175,6 +175,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PublicadorController.cs" />
+    <Compile Include="Controllers\RotasController.cs" />
     <Compile Include="Controllers\SocketServerController.cs" />
     <Compile Include="Controllers\SokestConController.cs" />
     <Compile Include="Global.asax.cs">
@@ -194,6 +195,8 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Properties\PublishProfiles\chatWebDayvson - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\chatWebDayvson - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
